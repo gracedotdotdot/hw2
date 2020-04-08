@@ -10,6 +10,7 @@ float freq=0;
 int freqArray[3]={0};
 int i;
 float j;
+int bus;
 //seven segment dislay
 BusOut display(D6, D7, D9, D10, D11, D5, D4, D8);
 char table[10] = {0x3F, 0x06, 0x5B, 0x4F, 0x66, 0x6D, 0x7D, 0x07, 0x7F, 0x6F};
@@ -21,9 +22,9 @@ DigitalOut redLED(LED1);
 
 
 int main(){
+
   for (i = 0; i < sample; i++){
         ADCdata[i] = Ain;
-        
         wait(1./sample);  //wait for the time to sample one data
       }
 
@@ -46,7 +47,7 @@ int main(){
       }
       for (i = 0; i < sample; i++){
         pc.printf("%f\r\n", ADCdata[i]);
-        wait(0.1);
+        //wait(0.1);
       }
       freq = (time2-time1)*(1./800);
       freq = 1./freq;
@@ -55,10 +56,9 @@ int main(){
       freqArray[1] = (freq- freqArray[0]*100)/10;
       freqArray[2] = freq - freqArray[0]*100 - freqArray[1]*10;
 
+
   while(1){      
-      for(i=0; i<3; i++){
-        pc.printf("freq[%d]=%d \r\n", i, freqArray[i]);
-      }
+
     for(j=0; j<2; j+=0.05 ){
       Aout = 0.5 + 0.5*sin(j*3.14159);
       wait(1./(freq*40));
@@ -78,8 +78,15 @@ int main(){
       //pc.printf("SW2 is off!!\r\n");
       for(int i=0; i<3; i++){
         //pc.printf("freq[%d]=%d \r\n", i, freqArray[i]);
-        display = table[freqArray[i]];
-        wait(0.1);
+        if(i==2){
+          bus = table[freqArray[i]] + 0x80;
+          display = bus;
+          wait(0.5);
+        }
+        else {
+          display = table[freqArray[i]];
+          wait(0.5);
+        }
         redLED=0;
         greenLED=1;
         
